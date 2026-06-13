@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "satishkahar/frontend-app"
+        IMAGE_NAME = "jayeshk1996/frontend"
         IMAGE_TAG  = "${BUILD_NUMBER}"
-        APP_SERVER = "13.49.228.23"
+        APP_SERVER = "13.126.226.232"
     }
 
     stages {
@@ -12,7 +12,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/satish327/Jenkins-webapp.git'
+                    url: 'https://github.com/jayeshkhapare26-crypto/WebApp-Project.git'
             }
         }
 
