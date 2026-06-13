@@ -1,0 +1,86 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = "satishkahar/frontend-app"
+        IMAGE_TAG  = "${BUILD_NUMBER}"
+        APP_SERVER = "13.49.228.23"
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/satish327/Jenkins-webapp.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh '''
+                docker build -f docker/dockerfile -t $IMAGE_NAME:$IMAGE_TAG .
+                '''
+            }
+        }
+
+        stage('Docker Login') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'DockerCred',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
+                    sh '''
+                    echo $DOCKER_PASS | docker login \
+                    -u $DOCKER_USER \
+                    --password-stdin
+                    '''
+                }
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                sh '''
+                docker push $IMAGE_NAME:$IMAGE_TAG
+
+                docker tag \
+                $IMAGE_NAME:$IMAGE_TAG \
+                $IMAGE_NAME:latest
+
+                docker push $IMAGE_NAME:latest
+                '''
+            }
+        }
+
+        stage('Deploy To App Server') {
+            steps {
+                sh """
+                ssh ubuntu@$APP_SERVER '
+                docker pull $IMAGE_NAME:latest
+                docker stop frontend || true
+                docker rm frontend || true
+
+                docker run -d \
+                --name frontend \
+                -p 80:80 \
+                $IMAGE_NAME:latest
+                '
+                """
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Deployment Successful'
+        }
+
+        failure {
+            echo 'Deployment Failed'
+        }
+    }
+}
