@@ -5,7 +5,7 @@ RUN cd ..
 COPY package*.json ./
 RUN npm install
 
-COPY ../ ./
+COPY . .
 RUN npm run build
 
 # Stage 2: Serve with nginx
