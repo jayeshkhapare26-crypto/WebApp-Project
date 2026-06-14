@@ -1,39 +1,37 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
 
 function App() {
-
-  const [products, setProducts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-
-    fetch("/api/products")
-      .then((response) => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch("/api/products");
 
         if (!response.ok) {
-          throw new Error("Failed to fetch products")
+          throw new Error("Failed to fetch products");
         }
 
-        return response.json()
-      })
-      .then((data) => {
-        setProducts(data)
-        setLoading(false)
-      })
-      .catch((err) => {
-        setError(err.message)
-        setLoading(false)
-      })
+        const data = await response.json();
+        setProducts(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  }, [])
+    fetchProducts();
+  }, []);
 
   if (loading) {
-    return <h2>Loading Products...</h2>
+    return <h2>Loading Products...</h2>;
   }
 
   if (error) {
-    return <h2>Error: {error}</h2>
+    return <h2>Error: {error}</h2>;
   }
 
   return (
@@ -50,7 +48,7 @@ function App() {
         ))}
       </ul>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
