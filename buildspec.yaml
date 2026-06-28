@@ -1,0 +1,30 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 22
+    commands:
+      - echo Installing source NPM dependencies...
+      - npm install
+  build:
+    commands:
+      - echo build started on 'date'
+      - echo building the node.js application...
+      - npm run build
+  post_build:
+    commands:
+      - echo build completed on 'date'
+      - mkdir deploy
+      - cp -r dist deploy/dist
+      - mv appspec.yaml appspec.yml
+      - cp appspec.yml deploy/
+      - cp -r scripts deploy/
+      - chmod +x deploy/scripts/restartNginx.sh
+      - chmod +x deploy/scripts/appStop.sh
+artifacts:
+  files:
+    - '**/*'
+base-directory: deploy
+name: frontend-build
+

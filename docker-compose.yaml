@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: ecommerce
+      MYSQL_USER: gopal
+      MYSQL_PASSWORD: gopal123
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  backend:
+    image: omkarnangare/backend:v1
+    container_name: backend
+    restart: always
+    depends_on:
+      - mysql
+    ports:
+      - "8080:8080"
+
+  frontend:
+    image: omkarnangare/frontend:v1
+    container_name: frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  mysql-data:
